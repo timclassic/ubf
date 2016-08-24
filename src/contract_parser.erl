@@ -82,15 +82,16 @@ builtin_types(ubf) ->
 
 parse_transform(In, Opts) ->
     Imports = [X||{attribute,_,add_types,X} <- In],
+    LibDir = code:lib_dir(ubf),
     case [X||{attribute,_,add_contract,X} <- In] of
         [File] ->
-            {Out, _Contract} = parse_transform(In, Opts, File ++ infileExtension(), Imports, fun parse_file/1, false),
+            {Out, _Contract} = parse_transform(In, Opts, filename:join(LibDir, File ++ infileExtension()), Imports, fun parse_file/1, false),
             Out;
         [] ->
             %% add (hacky) support for parameterized modules
             case [X||{attribute,_,add_pmod_contract,X} <- In] of
                 [File] ->
-                    {Out, _Contract} = parse_transform(In, Opts, File ++ infileExtension(), Imports, fun parse_file/1, true),
+                    {Out, _Contract} = parse_transform(In, Opts, filename:join(LibDir, File ++ infileExtension()), Imports, fun parse_file/1, true),
                     Out;
                 [] ->
                     In
